@@ -260,6 +260,12 @@ def decrypt(block, key):
 
 def encrypt_cbc(msg, key, iv):
     blocks = break_into_16_bytes(msg)
+
+    if len(blocks[-1]) < 32:
+        padded_number = str((32-len(blocks[-1]))//2)
+        for i in range((32-len(blocks[-1]))//2):
+            blocks[-1] += hex(ord(padded_number if len(padded_number) == 1 else padded_number[1:]))[2:]
+
     prev_state = ""
     ciphertext = [iv]
     for i in range(len(blocks)):
@@ -274,7 +280,54 @@ def encrypt_cbc(msg, key, iv):
 
 def decrypt_cbc(cipher, key):
     blocks = break_into_16_bytes(cipher)
+    for i in range(len(blocks)):
+        if len(blocks[i]) < 32:
+            extra = len(blocks[i])+1
+            for j in range(32 - len(blocks[i])):
+                blocks[i] += "0"
     plaintext = []
     for i in range(1, len(blocks)):
         plaintext.append(xor_hex_strings_samelen(decrypt(blocks[i], key), blocks[i-1]))
+    
     return "".join(plaintext)
+
+def encrypt_ctr(plaintext, key, iv):
+    blocks = break_into_16_bytes(plaintext)
+
+    if len(blocks[-1]) < 32:
+        padded_number = str((32-len(blocks[-1]))//2)
+        for i in range((32-len(blocks[-1]))//2):
+            blocks[-1] += hex(ord(padded_number if len(padded_number) == 1 else padded_number[1:]))[2:]
+
+    ciphertext = [iv]
+    for i in range(len(blocks)):
+        encrypted_iv = encrypt(hex(int(iv, 16) + i)[2:], key)
+        ciphertext.append(xor_hex_strings_samelen(encrypted_iv, blocks[i]))
+
+    return "".join(ciphertext)
+
+def decrypt_ctr(ciphertext, key):
+    blocks = break_into_16_bytes(ciphertext)
+    extra = 0
+    for i in range(len(blocks)):
+        if len(blocks[i]) < 32:
+            extra = len(blocks[i])+1
+            for j in range(32 - len(blocks[i])):
+                blocks[i] += "0"
+    plaintext = []
+    for i in range(1, len(blocks)):
+        decrypted_iv = encrypt(hex(int(blocks[0], 16) + (i-1))[2:], key)
+        plaintext.append(xor_hex_strings_samelen(decrypted_iv, blocks[i]))
+    
+    plaintext[-1] = plaintext[-1][:extra] if extra != 0 else plaintext[-1]
+    return "".join(plaintext)
+
+
+key = string_to_hex("this a test key!")
+message = string_to_hex("hello world this is a test message lets hope its not a multiple of 16")
+iv = string_to_hex("this is a random")
+
+ct = encrypt_ctr(message, key, iv)
+print(hex_to_string(ct))
+pt = hex_to_string(decrypt_ctr(ct, key))
+print(pt)
