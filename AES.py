@@ -322,12 +322,12 @@ def decrypt_ctr(ciphertext, key):
     plaintext[-1] = plaintext[-1][:extra] if extra != 0 else plaintext[-1]
     return "".join(plaintext)
 
+if __name__ == "__main__":
+    key = string_to_hex("this a test key!")
+    message = string_to_hex("hello world this is a test message lets hope its not a multiple of 16")
+    iv = string_to_hex("this is a random")
 
-key = string_to_hex("this a test key!")
-message = string_to_hex("hello world this is a test message lets hope its not a multiple of 16")
-iv = string_to_hex("this is a random")
-
-ct = encrypt_ctr(message, key, iv)
-print(hex_to_string(ct))
-pt = hex_to_string(decrypt_ctr(ct, key))
-print(pt)
+    ct = encrypt_ctr(message, key, iv)
+    print(hex_to_string(ct))
+    pt = hex_to_string(decrypt_ctr(ct, key))
+    print(pt)
