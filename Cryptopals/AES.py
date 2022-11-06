@@ -216,7 +216,6 @@ def unpad(input):
                 valid = False 
     else :
         valid = False
-    
     final_pt = final_pt[:-1 * int(hex(final_pt[-1])[2:])] if valid else final_pt 
     return final_pt.hex()
 
@@ -307,6 +306,7 @@ def decrypt_cbc(cipher, key):
     blocks = break_into_16_bytes(cipher)
     for i in range(len(blocks)):
         if len(blocks[i]) < 32:
+            extra = len(blocks[i])+1
             for j in range(32 - len(blocks[i])):
                 blocks[i] += "0"
     plaintext = []
@@ -346,10 +346,12 @@ def decrypt_ctr(ciphertext, key):
     return "".join(plaintext)
 
 if __name__ == "__main__":
-    key = string_to_hex("A secret message")
-    message = string_to_hex("Congrats for reading this. This is a very important message")
+    key = string_to_hex("This key is a bit longer than the other!")
+    message = string_to_hex("hello world this is a test message lets hope its not a multiple of 16!")
     iv = string_to_hex("!!Rishabh Goel!!")
 
-    ct = encrypt_ecb(pad(message, (32-len(message)%32)//2), key)
-    print(ct)
-    print(hex_to_string(decrypt_ecb(ct, key)))
+    ct = encrypt_ecb(message, key)
+    pt = decrypt_ecb(ct, key)
+    print(pt)
+    print(hex_to_string(pt))
+
