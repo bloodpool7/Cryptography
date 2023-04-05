@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 
 def exponentiate_modular(base, x, modulus):
@@ -48,16 +49,23 @@ def find_inverse(a, n):
 
 
 if __name__ == "__main__":
-    p = generate_prime(1024)
-    print(p)
-    print()
-    q = generate_prime(1024)
-    print(q)
-    print()
-    N = p*q 
-    phi_N = (p-1)*(q-1)
-    e = 65537 
-    d = find_inverse(e, phi_N)
-    print(f"modulus: {N}\n")
-    print(f"public key: {e, hex(e)}\n")
-    print(f"private key: {bytes.fromhex(hex(d)[2:])}\n")
+    # p = generate_prime(1024)
+    # print(p)
+    # print()
+    # q = generate_prime(1024)
+    # print(q)
+    # print()
+    # N = p*q 
+    # phi_N = (p-1)*(q-1)
+    # e = 65537 
+    # d = find_inverse(e, phi_N)
+    # print(f"modulus: {N}\n")
+    # print(f"public key: {e, hex(e)}\n")
+    # print(f"private key: {bytes.fromhex(hex(d)[2:])}\n")
+    a = generate_prime(1024)
+    b = generate_prime(1024)
+    c = generate_prime(1024)
+    start = time.time()
+    print(exponentiate_modular(a, b, c))
+    end = time.time()
+    print(f"\n {end - start}")
